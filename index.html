@@ -1,19 +1,35 @@
 <html>
 
 <head>
-    <title>Hello World</title>
+    <title>DWT Test</title>
     <script src="Resources/dynamsoft.webtwain.initiate.js"> </script>
     <script src="Resources/dynamsoft.webtwain.config.js"> </script>
+	<script src="Resources/addon/dynamsoft.webtwain.addon.pdf.js"></script>
 </head>
 
 <body>
 	<div style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
 		<h1>DWT Test</h1>
-		<div style="flex-direction:row;">
-			<input type="button" value="Scan" onclick="AcquireImage();" />
-			<input type="button" value="Upload" onclick="UploadAsPDF();" />
-		</div>
-    	<div id="dwtcontrolContainer"></div>
+        <div style="display:flex;width:100%;max-width:800px;">
+    	    <div id="dwtcontrolContainer" ></div>
+            <div style="flex-direction:row;border:1px solid;width:50%">
+                <!-- Operations on images -->
+                <div>
+                    <input type="button" value="Scan" onclick="AcquireImage();" />
+                    <input type="button" value="Upload local Image" onclick="LoadImages()" />
+                    <input type="button" value="Rotate" onclick="RotateImage()" />
+                </div>
+                <!-- Used to output the desired information -->
+                <div style="margin-top:10px;">
+                    <input type="button" value="Get Info" onclick="" />
+                    <div>
+                        <label>Info :</label>
+                        <div id="info" ></div>
+                    </div>
+                </div>
+		    </div>
+        </div>
+		
 	</div>
     <script type="text/javascript">
         var DWObject;
@@ -23,7 +39,7 @@
         }
 
         function AcquireImage() {
-            if (DWObject) {
+            if(DWObject) {
                 if (Dynamsoft.Lib.env.bMobile) {
                   DWObject.LoadImageEx('', 5,
                         function() {
@@ -46,36 +62,31 @@
             }
         }
 
-        function UploadAsPDF() {
-            var url = Dynamsoft.Lib.detect.ssl ? "https://" : "http://";
-            url += location.hostname;
-            var path = location.pathname.substring(0, location.pathname.lastIndexOf("/") + 1);
-            url += location.port === "" ? path : ":" + location.port + path;
-            url += "saveUploadedPDF.aspx";
-            var indices = [];
-            if (DWObject) {
-                if (DWObject.HowManyImagesInBuffer === 0) {
-                    console.log("There is no image to upload!");
-                    return;
-                }
-                DWObject.SelectAllImages();
-                indices = DWObject.SelectedImagesIndices;
-                DWObject.HTTPUpload(
-                    url,
-                    indices,
-                    Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,
-                    Dynamsoft.DWT.EnumDWT_UploadDataFormat.Binary,
-                    "HelloWorld.pdf",
-                    function() {
-                        //The server response is empty!
-                        console.log("Successfully uploaded!")
-                    },
-                    function(errCode, errString, response) {
-                        console.log(errString);
-                    }
-                );
+		function LoadImages() {
+    		if(DWObject) {
+				if(DWObject.Addon && DWObject.Addon.PDF) {
+					DWObject.Addon.PDF.SetResolution(300);
+					DWObject.Addon.PDF.SetConvertMode(Dynamsoft.DWT.EnumDWT_ConvertMode.CM_RENDERALL);
+				}
+				bUpload = false;
+				DWObject.IfShowFileDialog = true;
+				DWObject.LoadImageEx('', 5,
+					function () {
+					},
+					function (errorCode, errorString) {
+						alert('Load Image:' + errorString);
+					}
+        		);
+    		}
+		}
+
+        function RotateImage() {
+            console.log('Number in buffer:', DWObject.HowManyImagesInBuffer);
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                DWObject.RotateLeft(DWObject.CurrentImageIndexInBuffer);
             }
         }
+
     </script>
 </body>
 
