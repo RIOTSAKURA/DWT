@@ -18,14 +18,18 @@
                     <input type="button" value="Scan" onclick="AcquireImage();" />
                     <input type="button" value="Upload local Image" onclick="LoadImages()" />
                     <input type="button" value="Rotate" onclick="RotateImage()" />
+                    <input type="button" value="Interception" onclick="interceptionImage()" />
                 </div>
                 <!-- Used to output the desired information -->
-                <div style="margin-top:10px;">
+                <div style="margin-top:10px;min-height:100px;max-height:100px;overflow:auto;">
                     <div>
-                        <input type="button" value="Clear Infos" onclick="clearMessage()" />
                         <h3>Runtime Infos:</h3>
                         <div id="info"></div>
                     </div>
+                </div>
+                <div>
+                    <input type="button" value="Clear Infos" onclick="clearMessage()" />
+                    <input type="button" value="Save to local" onclick="saveToLocal()" />
                 </div>
 		    </div>
         </div>
@@ -38,6 +42,7 @@
             DWObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
         }
 
+        // Runtime Infos
         var tmpStr = '';
         function appendMessage(title, content) {
             var info = document.getElementById('info');
@@ -51,6 +56,7 @@
             tmpStr = '';
         }
 
+        // Get images by scanning
         function AcquireImage() {
             if(DWObject) {
                 if (Dynamsoft.Lib.env.bMobile) {
@@ -75,6 +81,7 @@
             }
         }
 
+        // Get images from local
 		function LoadImages() {
     		if(DWObject) {
 				if(DWObject.Addon && DWObject.Addon.PDF) {
@@ -93,9 +100,35 @@
     		}
 		}
 
+        // Rotate the choosen image
         function RotateImage() {
             if(DWObject.HowManyImagesInBuffer !== 0) {
                 DWObject.RotateLeft(DWObject.CurrentImageIndexInBuffer);
+                appendMessage('Rotate Image', 'Successful !')
+            }
+        }
+
+        // Interception the choosen image
+        function interceptionImage() {
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                
+            }
+        }
+        
+        // Save to local file (now default 'test.pdf')
+        function saveToLocal() {
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                var vAsyn = false;
+                var OnSuccess = function () {
+                    checkErrorStringWithErrorCode(0, "Successful.");
+                };
+
+                var OnFailure = function (errorCode, errorString) {
+                    checkErrorStringWithErrorCode(errorCode, errorString);
+                };
+                // DWObject.IfShowFileDialog = true;
+                var bSave = false;
+                bSave = DWObject.SaveAllAsPDF('test.pdf', OnSuccess, OnFailure);
             }
         }
 
