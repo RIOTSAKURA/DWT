@@ -12,7 +12,7 @@
 		<h1>DWT Test</h1>
         <div style="display:flex;width:100%;max-width:800px;">
     	    <div id="dwtcontrolContainer" ></div>
-            <div style="flex-direction:row;border:1px solid;width:50%">
+            <div style="flex-direction:row;border:1px solid;width:500px;">
                 <!-- Operations on images -->
                 <div>
                     <input type="button" value="Scan" onclick="AcquireImage();" />
@@ -21,10 +21,10 @@
                 </div>
                 <!-- Used to output the desired information -->
                 <div style="margin-top:10px;">
-                    <input type="button" value="Get Info" onclick="" />
                     <div>
-                        <label>Info :</label>
-                        <div id="info" ></div>
+                        <input type="button" value="Clear Infos" onclick="clearMessage()" />
+                        <h3>Runtime Infos:</h3>
+                        <div id="info"></div>
                     </div>
                 </div>
 		    </div>
@@ -36,6 +36,19 @@
 
         function Dynamsoft_OnReady() {
             DWObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
+        }
+
+        var tmpStr = '';
+        function appendMessage(title, content) {
+            var info = document.getElementById('info');
+            tmpStr += '<b>'+ title + ':' +'</b><label>' + content + '</label></br>';
+            info.innerHTML = tmpStr;
+        }
+
+        function clearMessage() {
+            var info = document.getElementById('info');
+            info.innerHTML = "";
+            tmpStr = '';
         }
 
         function AcquireImage() {
@@ -81,7 +94,6 @@
 		}
 
         function RotateImage() {
-            console.log('Number in buffer:', DWObject.HowManyImagesInBuffer);
             if(DWObject.HowManyImagesInBuffer !== 0) {
                 DWObject.RotateLeft(DWObject.CurrentImageIndexInBuffer);
             }
