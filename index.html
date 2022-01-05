@@ -1,0 +1,138 @@
+<html>
+
+<head>
+    <title>DWT Test</title>
+    <script src="Resources/dynamsoft.webtwain.initiate.js"> </script>
+    <script src="Resources/dynamsoft.webtwain.config.js"> </script>
+	<script src="Resources/addon/dynamsoft.webtwain.addon.pdf.js"></script>
+</head>
+
+<body>
+	<div style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
+		<h1>DWT Test</h1>
+        <div style="display:flex;width:100%;max-width:800px;">
+    	    <div id="dwtcontrolContainer" ></div>
+            <div style="flex-direction:row;border:1px solid;width:500px;">
+                <!-- Operations on images -->
+                <div>
+                    <input type="button" value="Scan" onclick="AcquireImage();" />
+                    <input type="button" value="Upload local Image" onclick="LoadImages()" />
+                    <input type="button" value="Rotate" onclick="RotateImage()" />
+                    <input type="button" value="Interception" onclick="interceptionImage()" />
+                </div>
+                <!-- Used to output the desired information -->
+                <div style="margin-top:10px;min-height:100px;max-height:100px;overflow:auto;">
+                    <div>
+                        <h3>Runtime Infos:</h3>
+                        <div id="info"></div>
+                    </div>
+                </div>
+                <div>
+                    <input type="button" value="Clear Infos" onclick="clearMessage()" />
+                    <input type="button" value="Save to local" onclick="saveToLocal()" />
+                </div>
+		    </div>
+        </div>
+		
+	</div>
+    <script type="text/javascript">
+        var DWObject;
+
+        function Dynamsoft_OnReady() {
+            DWObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
+        }
+
+        // Runtime Infos
+        var tmpStr = '';
+        function appendMessage(title, content) {
+            var info = document.getElementById('info');
+            tmpStr += '<b>'+ title + ':' +'</b><label>' + content + '</label></br>';
+            info.innerHTML = tmpStr;
+        }
+
+        function clearMessage() {
+            var info = document.getElementById('info');
+            info.innerHTML = "";
+            tmpStr = '';
+        }
+
+        // Get images by scanning
+        function AcquireImage() {
+            if(DWObject) {
+                if (Dynamsoft.Lib.env.bMobile) {
+                  DWObject.LoadImageEx('', 5,
+                        function() {
+                            console.log('success');
+                        },
+                        function(errCode, error) {
+                            alert(error);
+                        }
+                    );                 
+                } else {
+                    DWObject.SelectSource(function() {
+                            DWObject.OpenSource();
+                            DWObject.AcquireImage();
+                        },
+                        function() {
+                            console.log("SelectSource failed!");
+                        }
+                    );
+                }
+            }
+        }
+
+        // Get images from local
+		function LoadImages() {
+    		if(DWObject) {
+				if(DWObject.Addon && DWObject.Addon.PDF) {
+					DWObject.Addon.PDF.SetResolution(300);
+					DWObject.Addon.PDF.SetConvertMode(Dynamsoft.DWT.EnumDWT_ConvertMode.CM_RENDERALL);
+				}
+				bUpload = false;
+				DWObject.IfShowFileDialog = true;
+				DWObject.LoadImageEx('', 5,
+					function () {
+					},
+					function (errorCode, errorString) {
+						alert('Load Image:' + errorString);
+					}
+        		);
+    		}
+		}
+
+        // Rotate the choosen image
+        function RotateImage() {
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                DWObject.RotateLeft(DWObject.CurrentImageIndexInBuffer);
+                appendMessage('Rotate Image', 'Successful !')
+            }
+        }
+
+        // Interception the choosen image
+        function interceptionImage() {
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                
+            }
+        }
+        
+        // Save to local file (now default 'test.pdf')
+        function saveToLocal() {
+            if(DWObject.HowManyImagesInBuffer !== 0) {
+                var vAsyn = false;
+                var OnSuccess = function () {
+                    checkErrorStringWithErrorCode(0, "Successful.");
+                };
+
+                var OnFailure = function (errorCode, errorString) {
+                    checkErrorStringWithErrorCode(errorCode, errorString);
+                };
+                // DWObject.IfShowFileDialog = true;
+                var bSave = false;
+                bSave = DWObject.SaveAllAsPDF('test.pdf', OnSuccess, OnFailure);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
