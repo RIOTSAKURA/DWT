@@ -1,2 +1,2 @@
 # DWT
-Use try to use DWT SDK for development testing.
+Try to use DWT SDK for development testing.
